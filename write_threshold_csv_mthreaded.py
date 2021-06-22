@@ -98,8 +98,8 @@ MESSI_HAYSTACK = BASE + '/Datasets/Messi/Haystack messi'
 
 TEST_NEEDLE = BASE + '/Datasets/test_data/needle'
 TEST_HAYST = BASE + '/Datasets/test_data/haystack'
-TEST_DATA = BASE + '/grande_filtered_correct'
-TEST_BASE = BASE + '/grande_filtered_correct'
+TEST_DATA = BASE + '/ehm_dataset'
+TEST_BASE = BASE + '/ehm_dataset'
 
 #drive.mount('/content/drive', force_remount=True)
 
@@ -187,6 +187,7 @@ import threading
 import concurrent.futures
 import logging
 logging.root.setLevel(logging.DEBUG)
+import time
 
 
 db_fileName = TEST_BASE + '/data-keypoints.csv'
@@ -194,24 +195,25 @@ keypoints_df = pandas.read_csv(db_fileName)
 
 db_fileName3 = TEST_BASE + '/threshold.csv'
 db_file3 = open(db_fileName3, 'a')
-fieldnames = ['url_needle', 'url_haystack', 'keypoints', 'relatie', 'match']
+fieldnames = ['url_needle', 'matchTime', 'url_haystack', 'keypoints', 'relatie', 'match']
 writer = csv.DictWriter(db_file3, fieldnames=fieldnames)
 writer.writeheader()
 
 db_fileName2 = TEST_BASE + '/adjust.csv'
-db_file2 = open(db_fileName2, 'r')
+db_file2 = open(db_fileName2, 'r', encoding="latin")
 reader2 = csv.DictReader(db_file2)
 
 sift = cv.SIFT_create()
 csv.field_size_limit(sys.maxsize)
 
 write_lock = threading.Lock()
-def write_row(needle, haystack, keypoints, relatie, match):
+def write_row(needle, haystack, matchTime, keypoints, relatie, match):
   print('Writing csv: ', needle, haystack)
   with write_lock:
     writer.writerow({
         'url_needle' : needle,  
-        'url_haystack': haystack, 
+        'url_haystack': haystack,
+        'matchTime': matchTime,
         'keypoints' : keypoints, 
         'relatie': relatie,
         'match' : match
@@ -222,6 +224,7 @@ def write_row(needle, haystack, keypoints, relatie, match):
 
 
 def thread_function(images):
+    startTime = time.time()
     #keyp_1 = []
     #keyp_2 = []
     desc_1 = None
@@ -265,12 +268,12 @@ def thread_function(images):
     try:
         matches = bf.knnMatch(deserialize_descriptors(desc_1), deserialize_descriptors(desc_2), k=2) 
     except Exception as e:
-        logging.debug('Deze was dus te groot, of niet in de set: ')
+        logging.debug('MATCH ERROR: ')
         logging.debug(e)
         return
     good = []
     match_i = []
- 
+
     logging.debug('Matches: ' + str(len(matches)))
 
     for m,n in matches:
@@ -280,14 +283,14 @@ def thread_function(images):
         match_i.append(rela)
         if m.distance < 0.6132918588356167*n.distance:
             good.append([m])
- 
+
     sorteer = np.sort(match_i)
     # print(type(match_i))
     # print(match_i)
     # vaag = np.array(match_i,dtype=float)
     # writer = csv.DictWriter(db_file, fieldnames=fieldnames)
 
-    write_row(images['img1'], images['img2'], len(matches), serialize_descriptors(sorteer[:500]), images['match'])
+    write_row(images['img1'], images['img2'], time.time()-startTime, len(matches), serialize_descriptors(sorteer[:500]), images['match'])
     logging.debug('Thresholding data written for '+ images['img1'] +' '+ images['img2'])
 
 logging.debug('Starting threads...')

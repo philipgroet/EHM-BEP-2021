@@ -96,7 +96,7 @@ HARRY_data = BASE + '/Datasets/HARRYPOTTER'
 MESSI_NEEDLE = BASE + '/Datasets/Messi/Needle messi'
 MESSI_HAYSTACK = BASE + '/Datasets/Messi/Haystack messi'
 
-TEST_BASE = BASE + '/medium-ds'
+TEST_BASE = BASE + '/ehm_dataset'
 
 #drive.mount('/content/drive', force_remount=True)
 
@@ -380,7 +380,7 @@ import pandas
 # thresholds_df = pandas.read_csv(db_fileName)
 # thresholds_df['relatie'] = thresholds_df.apply(lambda row : deserialize_descriptors(row['relatie']))
 
-threshFilePath = TEST_BASE + '/threshold-3000.csv'
+threshFilePath = TEST_BASE + '/threshold.csv'
 #db_fileName = BASE + '/Datasets/test_data/data_dist_labels.csv'
 threshFile = open(threshFilePath, 'r')
 reader = csv.DictReader(threshFile)
@@ -401,6 +401,7 @@ def threshold_performance_v2(keypoint_th, min_abs_matches, match_ratio_th):
         
         # We only save the best 500 matches in threshold.csv
         if matches_need >= 500:
+            matches_need = 499
             continue
         
         # Minstens min_abs_matches nodig om een match te zijn, voorkomt enkele matches die meer dan 1% worden
@@ -465,7 +466,7 @@ optimal_min_abs_match = 21
 optimal_match_ratio_th = 0.5519978894151195
 
 precision, recall, balanced, FN, FP, TN, TP = threshold_performance_v2(optimal_keypoint_th, optimal_min_abs_match, optimal_match_ratio_th)
-print('Performance best: ', precision, recall, balanced, FN, FP, TN, TP)
+print('Performance best: p:', precision, 'r:', recall, 'b:', balanced, 'FN:', FN, 'FP', FP, 'TN', TN, 'TP', TP)
 
 
 # Vary keypoint thresh

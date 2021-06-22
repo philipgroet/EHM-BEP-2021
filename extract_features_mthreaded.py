@@ -99,8 +99,8 @@ MESSI_HAYSTACK = BASE + '/Datasets/Messi/Haystack messi'
 
 TEST_NEEDLE = BASE + '/Datasets/test_data/needle'
 TEST_HAYST = BASE + '/Datasets/test_data/haystack'
-TEST_DATA = BASE + '/grande_filtered_correct'
-TEST_BASE = BASE + '/grande_filtered_correct'
+TEST_DATA = BASE + '/ehm_dataset'
+TEST_BASE = BASE + '/ehm_dataset'
 
 #drive.mount('/content/drive', force_remount=True)
 
@@ -274,7 +274,7 @@ def thread_func(root, file):
     })
 
 
-with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=9) as executor:
     for root, subdirectories, files in os.walk(TEST_BASE):
         for file in files:
             executor.submit(thread_func, root, file)
